@@ -21,6 +21,7 @@ namespace JW.KS.API.Controllers
             _manager = roleManager;
         }
 
+        [HttpPost]
         public async Task<IActionResult> PostRole(RoleVM roleVm)
         {
             var role = new IdentityRole()
@@ -52,7 +53,7 @@ namespace JW.KS.API.Controllers
             return Ok(roles);
         }
         
-        [HttpGet]
+        [HttpGet("filter")]
         public async Task<IActionResult> GetAllRolesPaging(string filter, int page, int size)
         {
             var query = _manager.Roles;
@@ -63,25 +64,21 @@ namespace JW.KS.API.Controllers
 
             var totalRecords = await query.CountAsync();
             var items = await query.Skip(page - 1 * size)
-                .Take(page)
+                .Take(size)
                 .Select(x => new RoleVM()
                 {
                     Id = x.Id,
                     Name = x.Name
                 })
                 .ToListAsync();
+
             var pagination = new Pagination<RoleVM>
             {
                 Items = items,
                 TotalRecords = totalRecords
             };
-            var roles = await _manager.Roles.Select(r => new RoleVM
-            {
-                Id = r.Id,
-                Name = r.Name
-            }).ToListAsync();
-
-            return Ok(roles);
+            
+            return Ok(pagination);
         }
 
         [HttpGet("{id}")]

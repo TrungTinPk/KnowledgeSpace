@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation.AspNetCore;
 using JW.KS.API.Data;
 using JW.KS.API.Data.Entities;
+using JW.KS.ViewModels.Systems;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -52,7 +54,9 @@ namespace JW.KS.API
                 options.Password.RequireUppercase = true;
                 options.User.RequireUniqueEmail = true;
             });
-            services.AddControllers();
+            
+            services.AddControllers()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RoleVmValidator>());
             services.AddTransient<DbInitializer>();
             services.AddSwaggerGen(c =>
             {
@@ -81,6 +85,12 @@ namespace JW.KS.API
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Knowledge Space API V1");
+            });
         }
     }
 }
