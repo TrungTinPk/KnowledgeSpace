@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JW.KS.ViewModels;
 using JW.KS.ViewModels.Systems;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,9 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JW.KS.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class RolesController : ControllerBase
+    public class RolesController : BaseController
     {
         private readonly RoleManager<IdentityRole> _manager;
         public RolesController(RoleManager<IdentityRole> roleManager)
@@ -22,18 +21,18 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostRole(RoleVM roleVm)
+        public async Task<IActionResult> PostRole(RoleCreateRequest request)
         {
             var role = new IdentityRole()
             {
-                Id = roleVm.Id,
-                Name = roleVm.Name,
-                NormalizedName = roleVm.Name.ToUpper()
+                Id = request.Id,
+                Name = request.Name,
+                NormalizedName = request.Name.ToUpper()
             };
             var result = await _manager.CreateAsync(role);
             if (result.Succeeded)
             {
-                return CreatedAtAction(nameof(GetById), new {id = role.Id}, roleVm);
+                return CreatedAtAction(nameof(GetById), new {id = role.Id}, request);
             }
             else
             {
@@ -44,7 +43,7 @@ namespace JW.KS.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetRoles()
         {
-            var roles = await _manager.Roles.Select(r => new RoleVM
+            var roles = await _manager.Roles.Select(r => new RoleVm
             {
                 Id = r.Id,
                 Name = r.Name
@@ -65,14 +64,14 @@ namespace JW.KS.API.Controllers
             var totalRecords = await query.CountAsync();
             var items = await query.Skip(page - 1 * size)
                 .Take(size)
-                .Select(x => new RoleVM()
+                .Select(x => new RoleVm()
                 {
                     Id = x.Id,
                     Name = x.Name
                 })
                 .ToListAsync();
 
-            var pagination = new Pagination<RoleVM>
+            var pagination = new Pagination<RoleVm>
             {
                 Items = items,
                 TotalRecords = totalRecords
@@ -87,7 +86,7 @@ namespace JW.KS.API.Controllers
             var role = await _manager.FindByIdAsync(id);
             if (role == null)
                 return NotFound();
-            var roleVm = new RoleVM()
+            var roleVm = new RoleVm()
             {
                 Id = role.Id,
                 Name = role.Name
@@ -96,16 +95,16 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRole(string id, [FromBody]RoleVM roleVm)
+        public async Task<IActionResult> PutRole(string id, [FromBody]RoleCreateRequest request)
         {
-            if (id != roleVm.Id)
+            if (id != request.Id)
                 return BadRequest();
             var role = await _manager.FindByIdAsync(id);
             if (role == null)
                 return NotFound();
 
-            role.Name = roleVm.Name;
-            role.NormalizedName = roleVm.Name.ToUpper();
+            role.Name = request.Name;
+            role.NormalizedName = request.Name.ToUpper();
 
             var result = await _manager.UpdateAsync(role);
             if (result.Succeeded)
@@ -126,12 +125,12 @@ namespace JW.KS.API.Controllers
             var result = await _manager.DeleteAsync(role);
             if (result.Succeeded)
             {
-                var roleVM = new RoleVM()
+                var roleVm = new RoleVm()
                 {
                     Id = role.Id,
                     Name = role.Name
                 };
-                return Ok(roleVM);
+                return Ok(roleVm);
             }
 
             return BadRequest(result.Errors);

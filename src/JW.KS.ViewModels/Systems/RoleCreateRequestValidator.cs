@@ -2,9 +2,9 @@
 
 namespace JW.KS.ViewModels.Systems
 {
-    public class RoleVmValidator : AbstractValidator<RoleVM>
+    public class RoleCreateRequestValidator : AbstractValidator<RoleCreateRequest>
     {
-        public RoleVmValidator()
+        public RoleCreateRequestValidator()
         {
             RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("Id value is required")

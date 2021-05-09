@@ -43,7 +43,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 .ReturnsAsync(IdentityResult.Success);
             
             var rolesController = new RolesController(_mockRoleManager.Object);
-            var result = await rolesController.PostRole(new RoleVM()
+            var result = await rolesController.PostRole(new RoleCreateRequest()
             {
                 Id = "Test",
                 Name = "Test"
@@ -60,7 +60,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError[] { }));
             
             var rolesController = new RolesController(_mockRoleManager.Object);
-            var result = await rolesController.PostRole(new RoleVM()
+            var result = await rolesController.PostRole(new RoleCreateRequest()
             {
                 Id = "test",
                 Name = "test"
@@ -78,7 +78,7 @@ namespace JW.KS.API.UnitTest.Controllers
             var rolesController = new RolesController(_mockRoleManager.Object);
             var result = await rolesController.GetRoles();
             var okResult = result as OkObjectResult;
-            var roleVMs = okResult.Value as IEnumerable<RoleVM>;
+            var roleVMs = okResult.Value as IEnumerable<RoleVm>;
             Assert.True(roleVMs.Count()  > 0);
         }
 
@@ -99,7 +99,7 @@ namespace JW.KS.API.UnitTest.Controllers
             var rolesController = new RolesController(_mockRoleManager.Object);
             var result = await rolesController.GetAllRolesPaging(null, 1, 2);
             var okResult = result as OkObjectResult;
-            var roleVMs = okResult.Value as Pagination<RoleVM>;
+            var roleVMs = okResult.Value as Pagination<RoleVm>;
             Assert.Equal(4, roleVMs.TotalRecords);
             Assert.Equal(2, roleVMs.Items.Count);
         }
@@ -113,7 +113,7 @@ namespace JW.KS.API.UnitTest.Controllers
             var rolesController = new RolesController(_mockRoleManager.Object);
             var result = await rolesController.GetAllRolesPaging("test3", 1, 2);
             var okResult = result as OkObjectResult;
-            var roleVMs = okResult.Value as Pagination<RoleVM>;
+            var roleVMs = okResult.Value as Pagination<RoleVm>;
             Assert.Equal(1, roleVMs.TotalRecords);
             Assert.Single(roleVMs.Items);
         }
@@ -142,9 +142,9 @@ namespace JW.KS.API.UnitTest.Controllers
             var okResult = result as OkObjectResult;
             Assert.NotNull(okResult);
 
-            var roleVM = okResult.Value as RoleVM;
+            var roleVm = okResult.Value as RoleVm;
             
-            Assert.Equal("test1",roleVM.Name);
+            Assert.Equal("test1",roleVm.Name);
         }
 
         [Fact]
@@ -173,7 +173,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 .ReturnsAsync(IdentityResult.Success);
 
             var rolesController = new RolesController(_mockRoleManager.Object);
-            var result = await rolesController.PutRole("test", new RoleVM()
+            var result = await rolesController.PutRole("test", new RoleCreateRequest()
             {
                 Id = "test",
                 Name = "test"
@@ -196,7 +196,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 .Setup(x => x.UpdateAsync(It.IsAny<IdentityRole>()))
                 .ReturnsAsync(IdentityResult.Failed());
             var rolesController = new RolesController(_mockRoleManager.Object);
-            var result = await rolesController.PutRole("test", new RoleVM()
+            var result = await rolesController.PutRole("test", new RoleCreateRequest()
             {
                 Id = "test",
                 Name = "test"

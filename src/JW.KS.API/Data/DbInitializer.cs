@@ -53,10 +53,10 @@ namespace JW.KS.API.Data
                 var result = await _userManager.CreateAsync(new User
                 {
                     Id = Guid.NewGuid().ToString(),
-                    UserName = "admin",
+                    UserName = "tintt.pk@gmail.com",
                     FirstName = "Quản trị",
                     LastName = "1",
-                    Email = "tedu.international@gmail.com",
+                    Email = "tintt.pk@gmail.com",
                     LockoutEnabled = false
                 }, "Admin@123");
                 if (result.Succeeded)
