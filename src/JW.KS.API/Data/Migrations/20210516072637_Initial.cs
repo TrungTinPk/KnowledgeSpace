@@ -39,9 +39,7 @@ namespace JW.KS.API.Data.Migrations
                     FilePath = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     FileType = table.Column<string>(type: "varchar(4)", maxLength: 4, nullable: false),
                     FileSize = table.Column<long>(type: "bigint", nullable: false),
-                    KnowledgeBaseId = table.Column<int>(type: "int", nullable: true),
-                    CommentId = table.Column<int>(type: "int", nullable: true),
-                    Type = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
+                    KnowledgeBaseId = table.Column<int>(type: "int", nullable: false),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -128,8 +126,7 @@ namespace JW.KS.API.Data.Migrations
                 name: "KnowledgeBases",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<int>(type: "int", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     SeoAlias = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: false),
@@ -196,14 +193,12 @@ namespace JW.KS.API.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    KnowledgeBaseId = table.Column<int>(type: "int", nullable: true),
-                    CommentId = table.Column<int>(type: "int", nullable: true),
+                    KnowledgeBaseId = table.Column<int>(type: "int", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     ReportUserId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    IsProcessed = table.Column<bool>(type: "bit", nullable: false),
-                    Type = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true)
+                    IsProcessed = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
