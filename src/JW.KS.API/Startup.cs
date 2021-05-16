@@ -54,6 +54,7 @@ namespace JW.KS.API
             .AddInMemoryApiResources(Config.Apis)
             .AddInMemoryIdentityResources(Config.Ids)
             .AddAspNetIdentity<User>()
+            .AddProfileService<IdentityProfileService>()
             .AddDeveloperSigningCredential();
             
             services.Configure<IdentityOptions>(options =>

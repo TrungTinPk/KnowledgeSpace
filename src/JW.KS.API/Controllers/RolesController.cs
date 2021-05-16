@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using JW.KS.API.Authorization;
+using JW.KS.API.Constants;
 using JW.KS.API.Data;
 using JW.KS.API.Data.Entities;
 using JW.KS.ViewModels;
@@ -25,6 +27,7 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpPost]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.CREATE)]
         public async Task<IActionResult> PostRole(RoleCreateRequest request)
         {
             var role = new IdentityRole()
@@ -45,6 +48,7 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpGet]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.VIEW)]
         public async Task<IActionResult> GetRoles()
         {
             var roles = await _manager.Roles.Select(r => new RoleVm
@@ -57,7 +61,8 @@ namespace JW.KS.API.Controllers
         }
         
         [HttpGet("filter")]
-        public async Task<IActionResult> GetAllRolesPaging(string filter, int page, int size)
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.VIEW)]
+        public async Task<IActionResult> GetRolesPaging(string filter, int page, int size)
         {
             var query = _manager.Roles;
             if (!string.IsNullOrEmpty(filter))
@@ -85,6 +90,7 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.VIEW)]
         public async Task<IActionResult> GetById(string id)
         {
             var role = await _manager.FindByIdAsync(id);
@@ -99,6 +105,7 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.UPDATE)]
         public async Task<IActionResult> PutRole(string id, [FromBody]RoleCreateRequest request)
         {
             if (id != request.Id)
@@ -120,6 +127,7 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_ROLE, CommandCode.DELETE)]
         public async Task<IActionResult> DeleteRole(string id)
         {
             var role = await _manager.FindByIdAsync(id);
@@ -141,6 +149,7 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpGet("{roleId}/permissions")]
+        [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
         public async Task<IActionResult> GetPermissionByRoleId(string roleId)
         {
             var permissions = from p in _context.Permissions
@@ -159,6 +168,7 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpPut("{roleId}/permissions")]
+        [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.UPDATE)]
         public async Task<IActionResult> PutPermissionByRoleId(string roleId, [FromBody] UpdatePermissionRequest request)
         {
             //create new permission list from user changed

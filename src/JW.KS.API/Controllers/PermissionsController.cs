@@ -1,4 +1,6 @@
 ﻿using Dapper;
+using JW.KS.API.Authorization;
+using JW.KS.API.Constants;
 using JW.KS.ViewModels.Systems;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -23,7 +25,8 @@ namespace JW.KS.API.Controllers
         /// </summary>
         /// <returns></returns>
         /// 
-        [HttpGet()]
+        [HttpGet]
+        [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
         public async Task<IActionResult> GetCommandViews()
         {
             using SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));

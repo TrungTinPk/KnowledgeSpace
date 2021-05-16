@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using JW.KS.API.Authorization;
+using JW.KS.API.Constants;
 using JW.KS.API.Data;
 using JW.KS.API.Data.Entities;
 using JW.KS.ViewModels;
@@ -20,6 +22,7 @@ namespace JW.KS.API.Controllers
         }
         
         [HttpPost]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.CREATE)]
         public async Task<IActionResult> PostFunction([FromBody]FunctionCreateRequest request)
         {
             var function = new Function()
@@ -44,6 +47,7 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpGet]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.VIEW)]
         public async Task<IActionResult> GetFunctions()
         {
             var functionVms = await _context.Functions.Select(f => new Function()
@@ -59,6 +63,7 @@ namespace JW.KS.API.Controllers
         }
         
         [HttpGet("filter")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.VIEW)]
         public async Task<IActionResult> GetFunctionsPaging(string filter, int page, int size)
         {
             var query = _context.Functions.AsQueryable();
@@ -92,6 +97,7 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.VIEW)]
         public async Task<IActionResult> GetById(string id)
         {
             var function = await _context.Functions.FindAsync(id);
@@ -109,6 +115,7 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.UPDATE)]
         public async Task<IActionResult> PutFunction(string id, [FromBody]FunctionCreateRequest request)
         {
             var function = await _context.Functions.FindAsync(id);
@@ -132,6 +139,7 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.DELETE)]
         public async Task<IActionResult> DeleteFunction(string id)
         {
             var function = await _context.Functions.FindAsync(id);
@@ -157,7 +165,8 @@ namespace JW.KS.API.Controllers
         }
         
         [HttpGet("{functionId}/commands")]
-        public async Task<IActionResult> GetCommands(string functionId)
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.VIEW)]
+        public async Task<IActionResult> GetCommantsInFunction(string functionId)
         {
             var functions = _context.Functions;
             var query = from c in _context.Commands
@@ -183,6 +192,7 @@ namespace JW.KS.API.Controllers
         }
         
         [HttpGet("{functionId}/commands/not-in-function")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.VIEW)]
         public async Task<IActionResult> GetCommantsNotInFunction(string functionId)
         {
             var functions = _context.Functions;
@@ -209,6 +219,7 @@ namespace JW.KS.API.Controllers
         }
         
         [HttpPost("{functionId}/commands")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.CREATE)]
         public async Task<IActionResult> PostCommandToFunction(string functionId, [FromBody] AddCommandToFunctionRequest request)
         {
             var commandInFunction = await _context.CommandInFunctions.FindAsync(request.CommandId, request.FunctionId);
@@ -234,6 +245,7 @@ namespace JW.KS.API.Controllers
         }
         
         [HttpDelete("{functionId}/commands/{commandId}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_FUNCTION, CommandCode.UPDATE)]
         public async Task<IActionResult> PostCommandToFunction(string functionId, string commandId)
         {
             var commandInFunction = await _context.CommandInFunctions.FindAsync(functionId, commandId);

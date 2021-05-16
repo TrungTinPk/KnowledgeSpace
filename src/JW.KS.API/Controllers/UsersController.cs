@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using JW.KS.API.Authorization;
+using JW.KS.API.Constants;
 using JW.KS.API.Data;
 using JW.KS.API.Data.Entities;
 using JW.KS.ViewModels;
@@ -25,6 +27,7 @@ namespace JW.KS.API.Controllers
         }
         
         [HttpPost]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.CREATE)]
         public async Task<IActionResult> PostUser(UserCreateRequest request)
         {
             var user = new User()
@@ -48,23 +51,9 @@ namespace JW.KS.API.Controllers
             }
         }
         
-        [HttpPut("{id}/change-password")]
-        public async Task<IActionResult> PutUserPassword(string id, [FromBody]UserPasswordChangeRequest request)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-                return NotFound();
-
-            var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
-
-            if (result.Succeeded)
-            {
-                return NoContent();
-            }
-            return BadRequest(result.Errors);
-        }
-
+        
         [HttpGet]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
         public async Task<IActionResult> GetUsers()
         {
             var uservms = await _userManager.Users.Select(u => new UserVm()
@@ -82,7 +71,8 @@ namespace JW.KS.API.Controllers
         }
         
         [HttpGet("filter")]
-        public async Task<IActionResult> GetAllUsersPaging(string filter, int page, int size)
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
+        public async Task<IActionResult> GetUsersPaging(string filter, int page, int size)
         {
             var query = _userManager.Users;
             if (!string.IsNullOrEmpty(filter))
@@ -117,6 +107,7 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
         public async Task<IActionResult> GetById(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -136,6 +127,7 @@ namespace JW.KS.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
         public async Task<IActionResult> PutUser(string id, [FromBody]UserCreateRequest request)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -156,7 +148,25 @@ namespace JW.KS.API.Controllers
             return BadRequest(result.Errors);
         }
 
+        [HttpPut("{id}/change-password")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
+        public async Task<IActionResult> PutUserPassword(string id, [FromBody] UserPasswordChangeRequest request)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+
+            if (result.Succeeded)
+            {
+                return NoContent();
+            }
+            return BadRequest(result.Errors);
+        }
+
         [HttpDelete("{id}")]
+        [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.DELETE)]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
