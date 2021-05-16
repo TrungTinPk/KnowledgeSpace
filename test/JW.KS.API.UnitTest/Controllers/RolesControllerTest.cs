@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JW.KS.API.Controllers;
+using JW.KS.API.Data;
 using JW.KS.ViewModels;
 using JW.KS.ViewModels.Systems;
 using Microsoft.AspNetCore.Identity;
@@ -16,7 +17,8 @@ namespace JW.KS.API.UnitTest.Controllers
 {
     public class RolesControllerTest
     {
-        private readonly Mock<RoleManager<IdentityRole>> _mockRoleManager; 
+        private readonly Mock<RoleManager<IdentityRole>> _mockRoleManager;
+        private ApplicationDbContext _context;
         private List<IdentityRole> _roleSources = new List<IdentityRole>(){
             new IdentityRole("test1"),
             new IdentityRole("test2"),
@@ -27,11 +29,12 @@ namespace JW.KS.API.UnitTest.Controllers
         {
             var mockRoleStore = new Mock<IRoleStore<IdentityRole>>();
             _mockRoleManager = new Mock<RoleManager<IdentityRole>>(mockRoleStore.Object,null,null,null,null);
+            _context = new InMemoryDbContextFactory().GetApplicationDbContext();
         }
         [Fact]
         public void ShouldCreateInstance_NotNull_Success()
         {
-            var rolesController = new RolesController(_mockRoleManager.Object);
+            var rolesController = new RolesController(_mockRoleManager.Object, _context);
             Assert.NotNull(rolesController);
         }
         
@@ -42,7 +45,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 .Setup(x => x.CreateAsync(It.IsAny<IdentityRole>()))
                 .ReturnsAsync(IdentityResult.Success);
             
-            var rolesController = new RolesController(_mockRoleManager.Object);
+            var rolesController = new RolesController(_mockRoleManager.Object, _context);
             var result = await rolesController.PostRole(new RoleCreateRequest()
             {
                 Id = "Test",
@@ -59,7 +62,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 .Setup(x => x.CreateAsync(It.IsAny<IdentityRole>()))
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError[] { }));
             
-            var rolesController = new RolesController(_mockRoleManager.Object);
+            var rolesController = new RolesController(_mockRoleManager.Object, _context);
             var result = await rolesController.PostRole(new RoleCreateRequest()
             {
                 Id = "test",
@@ -75,7 +78,7 @@ namespace JW.KS.API.UnitTest.Controllers
             _mockRoleManager
                 .Setup(x => x.Roles)
                 .Returns(_roleSources.AsQueryable().BuildMock().Object);
-            var rolesController = new RolesController(_mockRoleManager.Object);
+            var rolesController = new RolesController(_mockRoleManager.Object, _context);
             var result = await rolesController.GetRoles();
             var okResult = result as OkObjectResult;
             var roleVMs = okResult.Value as IEnumerable<RoleVm>;
@@ -86,7 +89,7 @@ namespace JW.KS.API.UnitTest.Controllers
         public async Task GetRoles_ThrowException_Failed()
         {
             _mockRoleManager.Setup(x => x.Roles).Throws<Exception>();
-            var rolesController = new RolesController(_mockRoleManager.Object);
+            var rolesController = new RolesController(_mockRoleManager.Object, _context);
             await Assert.ThrowsAsync<Exception>(async () => await rolesController.GetRoles());
         }
 
@@ -96,7 +99,7 @@ namespace JW.KS.API.UnitTest.Controllers
             _mockRoleManager
                 .Setup(x => x.Roles)
                 .Returns(_roleSources.AsQueryable().BuildMock().Object);
-            var rolesController = new RolesController(_mockRoleManager.Object);
+            var rolesController = new RolesController(_mockRoleManager.Object, _context);
             var result = await rolesController.GetAllRolesPaging(null, 1, 2);
             var okResult = result as OkObjectResult;
             var roleVMs = okResult.Value as Pagination<RoleVm>;
@@ -110,7 +113,7 @@ namespace JW.KS.API.UnitTest.Controllers
             _mockRoleManager
                 .Setup(x => x.Roles)
                 .Returns(_roleSources.AsQueryable().BuildMock().Object);
-            var rolesController = new RolesController(_mockRoleManager.Object);
+            var rolesController = new RolesController(_mockRoleManager.Object, _context);
             var result = await rolesController.GetAllRolesPaging("test3", 1, 2);
             var okResult = result as OkObjectResult;
             var roleVMs = okResult.Value as Pagination<RoleVm>;
@@ -122,7 +125,7 @@ namespace JW.KS.API.UnitTest.Controllers
         public async Task GetRolesPaging_ThrowException_Failed()
         {
             _mockRoleManager.Setup(x => x.Roles).Throws<Exception>();
-            var rolesController = new RolesController(_mockRoleManager.Object);
+            var rolesController = new RolesController(_mockRoleManager.Object, _context);
             await Assert.ThrowsAsync<Exception>(async () => await rolesController.GetAllRolesPaging(null,1,1));
         }
 
@@ -137,7 +140,7 @@ namespace JW.KS.API.UnitTest.Controllers
                     Name = "test1"
                 });
             
-            var rolesController = new RolesController(_mockRoleManager.Object);
+            var rolesController = new RolesController(_mockRoleManager.Object, _context);
             var result = await rolesController.GetById("test1");
             var okResult = result as OkObjectResult;
             Assert.NotNull(okResult);
@@ -154,7 +157,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 .Setup(x => x.FindByIdAsync(It.IsAny<string>()))
                 .Throws<Exception>();
             
-            var rolesController = new RolesController(_mockRoleManager.Object);
+            var rolesController = new RolesController(_mockRoleManager.Object, _context);
             await Assert.ThrowsAnyAsync<Exception>(async () => await rolesController.GetById("test1"));
         }
 
@@ -172,7 +175,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 .Setup(x => x.UpdateAsync(It.IsAny<IdentityRole>()))
                 .ReturnsAsync(IdentityResult.Success);
 
-            var rolesController = new RolesController(_mockRoleManager.Object);
+            var rolesController = new RolesController(_mockRoleManager.Object, _context);
             var result = await rolesController.PutRole("test", new RoleCreateRequest()
             {
                 Id = "test",
@@ -195,7 +198,7 @@ namespace JW.KS.API.UnitTest.Controllers
             _mockRoleManager
                 .Setup(x => x.UpdateAsync(It.IsAny<IdentityRole>()))
                 .ReturnsAsync(IdentityResult.Failed());
-            var rolesController = new RolesController(_mockRoleManager.Object);
+            var rolesController = new RolesController(_mockRoleManager.Object, _context);
             var result = await rolesController.PutRole("test", new RoleCreateRequest()
             {
                 Id = "test",
@@ -218,7 +221,7 @@ namespace JW.KS.API.UnitTest.Controllers
             _mockRoleManager
                 .Setup(x => x.DeleteAsync(It.IsAny<IdentityRole>()))
                 .ReturnsAsync(IdentityResult.Success);
-            var rolesManager = new RolesController(_mockRoleManager.Object);
+            var rolesManager = new RolesController(_mockRoleManager.Object, _context);
             var result = await rolesManager.DeleteRole("test");
             Assert.IsType<OkObjectResult>(result);
         }
@@ -235,7 +238,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 });
             _mockRoleManager.Setup(x => x.DeleteAsync(It.IsAny<IdentityRole>()))
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError[] { }));
-            var rolesManager = new RolesController(_mockRoleManager.Object);
+            var rolesManager = new RolesController(_mockRoleManager.Object, _context);
             var result = await rolesManager.DeleteRole("test");
             Assert.IsType<BadRequestObjectResult>(result);
         }

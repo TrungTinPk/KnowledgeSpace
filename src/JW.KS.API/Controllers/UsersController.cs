@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using JW.KS.API.Data;
 using JW.KS.API.Data.Entities;
 using JW.KS.ViewModels;
 using JW.KS.ViewModels.Systems;
@@ -12,11 +13,15 @@ namespace JW.KS.API.Controllers
 {
     public class UsersController : BaseController
     {
-        private readonly UserManager<User> _manager;
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ApplicationDbContext _context;
         
-        public UsersController(UserManager<User> manager)
+        public UsersController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext context)
         {
-            _manager = manager;
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _context = context;
         }
         
         [HttpPost]
@@ -32,7 +37,7 @@ namespace JW.KS.API.Controllers
                 FirstName = request.FirstName,
                 PhoneNumber = request.PhoneNumber
             };
-            var result = await _manager.CreateAsync(user, request.Password);
+            var result = await _userManager.CreateAsync(user, request.Password);
             if (result.Succeeded)
             {
                 return CreatedAtAction(nameof(GetById), new {id = user.Id}, request);
@@ -46,7 +51,7 @@ namespace JW.KS.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
-            var uservms = await _manager.Users.Select(u => new UserVm()
+            var uservms = await _userManager.Users.Select(u => new UserVm()
             {
                 Id = u.Id,
                 UserName = u.UserName,
@@ -63,7 +68,7 @@ namespace JW.KS.API.Controllers
         [HttpGet("filter")]
         public async Task<IActionResult> GetAllUsersPaging(string filter, int page, int size)
         {
-            var query = _manager.Users;
+            var query = _userManager.Users;
             if (!string.IsNullOrEmpty(filter))
             {
                 query = query.Where(x => x.Email.Contains(filter)
@@ -98,7 +103,7 @@ namespace JW.KS.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
-            var user = await _manager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
                 return NotFound();
             var userVm = new UserVm()
@@ -117,7 +122,7 @@ namespace JW.KS.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(string id, [FromBody]UserCreateRequest request)
         {
-            var user = await _manager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
                 return NotFound();
             
@@ -125,7 +130,7 @@ namespace JW.KS.API.Controllers
             user.LastName = request.LastName;
             user.Dob = request.Dob;
             
-            var result = await _manager.UpdateAsync(user);
+            var result = await _userManager.UpdateAsync(user);
             
             if (result.Succeeded)
             {
@@ -138,11 +143,11 @@ namespace JW.KS.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            var user = await _manager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null)
                 return NotFound();
 
-            var result = await _manager.DeleteAsync(user);
+            var result = await _userManager.DeleteAsync(user);
 
             if (!result.Succeeded) return BadRequest(result.Errors);
             
@@ -157,6 +162,33 @@ namespace JW.KS.API.Controllers
                 LastName = user.LastName
             };
             return Ok(uservm);
+        }
+
+        [HttpGet("{userId}/menu")]
+        public async Task<IActionResult> GetMenuByUserPermission(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            var roles = await _userManager.GetRolesAsync(user);
+            var query = from f in _context.Functions
+                        join p in _context.Permissions
+                            on f.Id equals p.FunctionId
+                        join r in _roleManager.Roles on p.RoleId equals r.Id
+                        join a in _context.Commands
+                            on p.CommandId equals a.Id
+                        where roles.Contains(r.Name) && a.Id == "VIEW"
+                        select new FunctionVm
+                        {
+                            Id = f.Id,
+                            Name = f.Name,
+                            Url = f.Url,
+                            ParentId = f.ParentId,
+                            SortOrder = f.SortOrder,
+                        };
+            var data = await query.Distinct()
+                .OrderBy(x => x.ParentId)
+                .ThenBy(x => x.SortOrder)
+                .ToListAsync();
+            return Ok(data);
         }
     }
 }

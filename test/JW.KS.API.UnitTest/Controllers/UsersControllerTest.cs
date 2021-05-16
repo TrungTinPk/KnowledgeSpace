@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JW.KS.API.Controllers;
+using JW.KS.API.Data;
 using JW.KS.API.Data.Entities;
 using JW.KS.ViewModels;
 using JW.KS.ViewModels.Systems;
@@ -17,7 +18,11 @@ namespace JW.KS.API.UnitTest.Controllers
 {
     public class UsersControllerTest
     {
-        private readonly Mock<UserManager<User>> _mockUserManager; 
+        private readonly Mock<UserManager<User>> _mockUserManager;
+        private readonly Mock<RoleManager<IdentityRole>> _mockRoleManager;
+
+        private ApplicationDbContext _context;
+
         private List<User> _userSources = new List<User>(){
             new User("1","test1","Test 1","LastTest 1","test1@gmail.com","001111",DateTime.Now),
             new User("2","test2","Test 2","LastTest 2","test2@gmail.com","001111",DateTime.Now),
@@ -29,12 +34,17 @@ namespace JW.KS.API.UnitTest.Controllers
         {
             var mockUserStore = new Mock<IUserStore<User>>();
             _mockUserManager = new Mock<UserManager<User>>(mockUserStore.Object,null, null, null, null, null, null, null, null);
+
+            var roleStore = new Mock<IRoleStore<IdentityRole>>();
+            _mockRoleManager = new Mock<RoleManager<IdentityRole>>(roleStore.Object, null, null, null, null);
+
+            _context =  new InMemoryDbContextFactory().GetApplicationDbContext();
         }
         
         [Fact]
         public void ShouldCreateInstance_NotNull_Success()
         {
-            var usersController = new UsersController(_mockUserManager.Object);
+            var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             Assert.NotNull(usersController);
         }
         
@@ -50,7 +60,7 @@ namespace JW.KS.API.UnitTest.Controllers
                     UserName = "test"
                 });
             
-            var usersController = new UsersController(_mockUserManager.Object);
+            var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.PostUser(new UserCreateRequest()
             {
                 UserName = "test",
@@ -67,7 +77,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 .Setup(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError[] { }));
             
-            var usersController = new UsersController(_mockUserManager.Object);
+            var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.PostUser(new UserCreateRequest()
             {
                 UserName = "test",
@@ -83,7 +93,7 @@ namespace JW.KS.API.UnitTest.Controllers
             _mockUserManager
                 .Setup(x => x.Users)
                 .Returns(_userSources.AsQueryable().BuildMock().Object);
-            var usersController = new UsersController(_mockUserManager.Object);
+            var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.GetUsers();
             var okResult = result as OkObjectResult;
             var roleVMs = okResult.Value as IEnumerable<UserVm>;
@@ -94,7 +104,7 @@ namespace JW.KS.API.UnitTest.Controllers
         public async Task GetUsers_ThrowException_Failed()
         {
             _mockUserManager.Setup(x => x.Users).Throws<Exception>();
-            var usersController = new UsersController(_mockUserManager.Object);
+            var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             await Assert.ThrowsAsync<Exception>(async () => await usersController.GetUsers());
         }
 
@@ -104,7 +114,7 @@ namespace JW.KS.API.UnitTest.Controllers
             _mockUserManager
                 .Setup(x => x.Users)
                 .Returns(_userSources.AsQueryable().BuildMock().Object);
-            var usersController = new UsersController(_mockUserManager.Object);
+            var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.GetAllUsersPaging(null, 1, 2);
             var okResult = result as OkObjectResult;
             var roleVMs = okResult.Value as Pagination<UserVm>;
@@ -118,7 +128,7 @@ namespace JW.KS.API.UnitTest.Controllers
             _mockUserManager
                 .Setup(x => x.Users)
                 .Returns(_userSources.AsQueryable().BuildMock().Object);
-            var usersController = new UsersController(_mockUserManager.Object);
+            var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.GetAllUsersPaging("test1", 1, 2);
             var okResult = result as OkObjectResult;
             var roleVMs = okResult.Value as Pagination<UserVm>;
@@ -130,7 +140,7 @@ namespace JW.KS.API.UnitTest.Controllers
         public async Task GetUsersPaging_ThrowException_Failed()
         {
             _mockUserManager.Setup(x => x.Users).Throws<Exception>();
-            var usersController = new UsersController(_mockUserManager.Object);
+            var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             await Assert.ThrowsAsync<Exception>(async () => await usersController.GetAllUsersPaging(null,1,1));
         }
 
@@ -144,7 +154,7 @@ namespace JW.KS.API.UnitTest.Controllers
                     UserName = "test1"
                 });
             
-            var usersController = new UsersController(_mockUserManager.Object);
+            var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.GetById("test1");
             var okResult = result as OkObjectResult;
             
@@ -162,7 +172,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 .Setup(x => x.FindByIdAsync(It.IsAny<string>()))
                 .Throws<Exception>();
             
-            var usersController = new UsersController(_mockUserManager.Object);
+            var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             await Assert.ThrowsAnyAsync<Exception>(async () => await usersController.GetById("test1"));
         }
 
@@ -179,7 +189,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 .Setup(x => x.UpdateAsync(It.IsAny<User>()))
                 .ReturnsAsync(IdentityResult.Success);
 
-            var usersController = new UsersController(_mockUserManager.Object);
+            var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.PutUser("test1", new UserCreateRequest()
             {
                 UserName = "test1"
@@ -200,7 +210,7 @@ namespace JW.KS.API.UnitTest.Controllers
             _mockUserManager
                 .Setup(x => x.UpdateAsync(It.IsAny<User>()))
                 .ReturnsAsync(IdentityResult.Failed());
-            var usersController = new UsersController(_mockUserManager.Object);
+            var usersController = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersController.PutUser("test", new UserCreateRequest()
             {
                 UserName = "test1"
@@ -221,7 +231,7 @@ namespace JW.KS.API.UnitTest.Controllers
             _mockUserManager
                 .Setup(x => x.DeleteAsync(It.IsAny<User>()))
                 .ReturnsAsync(IdentityResult.Success);
-            var usersManager = new UsersController(_mockUserManager.Object);
+            var usersManager = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersManager.DeleteUser("test1");
             Assert.IsType<OkObjectResult>(result);
         }
@@ -237,7 +247,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 });
             _mockUserManager.Setup(x => x.DeleteAsync(It.IsAny<User>()))
                 .ReturnsAsync(IdentityResult.Failed(new IdentityError[] { }));
-            var usersManager = new UsersController(_mockUserManager.Object);
+            var usersManager = new UsersController(_mockUserManager.Object, _mockRoleManager.Object, _context);
             var result = await usersManager.DeleteUser("test");
             Assert.IsType<BadRequestObjectResult>(result);
         }
