@@ -47,6 +47,22 @@ namespace JW.KS.API.Controllers
                 return BadRequest(result.Errors);
             }
         }
+        
+        [HttpPut("{id}/change-password")]
+        public async Task<IActionResult> PutUserPassword(string id, [FromBody]UserPasswordChangeRequest request)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+
+            if (result.Succeeded)
+            {
+                return NoContent();
+            }
+            return BadRequest(result.Errors);
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetUsers()
