@@ -17,7 +17,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JW.KS.API.Controllers
 {
-    public class KnowledgeBasesController : BaseController
+    public partial class KnowledgeBasesController : BaseController
     {
         private readonly ApplicationDbContext _context;
         private readonly ISequenceService _sequenceService;
@@ -41,25 +41,15 @@ namespace JW.KS.API.Controllers
             var knowledgeBase = new KnowledgeBase()
             {
                 CategoryId = request.CategoryId,
-
                 Title = request.Title,
-
                 SeoAlias = request.SeoAlias,
-
                 Description = request.Description,
-
                 Environment = request.Environment,
-
                 Problem = request.Problem,
-
                 StepToReproduce = request.StepToReproduce,
-
                 ErrorMessage = request.ErrorMessage,
-
                 Workaround = request.Workaround,
-
                 Note = request.Note,
-
                 Labels = request.Labels,
             };
             knowledgeBase.Id = await _sequenceService.GetKnowledgeBaseNewId();
@@ -92,7 +82,7 @@ namespace JW.KS.API.Controllers
             }
             else
             {
-                return BadRequest();
+                return BadRequest(new ApiBadRequestResponse("Create knowledge failed"));
             }
         }
 
@@ -204,30 +194,19 @@ namespace JW.KS.API.Controllers
         {
             var knowledgeBase = await _context.KnowledgeBases.FindAsync(id);
             if (knowledgeBase == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found knowledge base with id: {id}"));
 
             knowledgeBase.CategoryId = request.CategoryId;
-
             knowledgeBase.Title = request.Title;
-
             knowledgeBase.SeoAlias = request.SeoAlias;
-
             knowledgeBase.Description = request.Description;
-
             knowledgeBase.Environment = request.Environment;
-
             knowledgeBase.Problem = request.Problem;
-
             knowledgeBase.StepToReproduce = request.StepToReproduce;
-
             knowledgeBase.ErrorMessage = request.ErrorMessage;
-
             knowledgeBase.Workaround = request.Workaround;
-
             knowledgeBase.Note = request.Note;
-
             knowledgeBase.Labels = request.Labels;
-
             _context.KnowledgeBases.Update(knowledgeBase);
 
             if (!string.IsNullOrEmpty(request.Labels))
@@ -240,7 +219,7 @@ namespace JW.KS.API.Controllers
             {
                 return NoContent();
             }
-            return BadRequest();
+            return BadRequest(new ApiBadRequestResponse($"Update knowledge base failed"));
         }
 
         [HttpDelete("{id}")]
@@ -249,7 +228,7 @@ namespace JW.KS.API.Controllers
         {
             var knowledgeBase = await _context.KnowledgeBases.FindAsync(id);
             if (knowledgeBase == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found knowledge base with id {id}"));
 
             _context.KnowledgeBases.Remove(knowledgeBase);
             var result = await _context.SaveChangesAsync();
@@ -258,7 +237,7 @@ namespace JW.KS.API.Controllers
                 KnowledgeBaseVm knowledgeBasevm = CreateKnowledgeBaseVm(knowledgeBase);
                 return Ok(knowledgeBasevm);
             }
-            return BadRequest();
+            return BadRequest(new ApiBadRequestResponse($"Delete knowledge base failed"));
         }
 
         private static KnowledgeBaseVm CreateKnowledgeBaseVm(KnowledgeBase knowledgeBase)
@@ -304,146 +283,6 @@ namespace JW.KS.API.Controllers
         }
 
         #endregion Knowledge Base
-
-        #region Comments
-
-        [HttpGet("{knowledgeBaseId}/comments/filter")]
-        [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.VIEW)]
-        public async Task<IActionResult> GetCommentsPaging(int knowledgeBaseId, string filter, int pageIndex, int pageSize)
-        {
-            var query = _context.Comments.Where(x => x.KnowledgeBaseId == knowledgeBaseId).AsQueryable();
-            if (!string.IsNullOrEmpty(filter))
-            {
-                query = query.Where(x => x.Content.Contains(filter));
-            }
-            var totalRecords = await query.CountAsync();
-            var items = await query.Skip((pageIndex - 1 * pageSize))
-                .Take(pageSize)
-                .Select(c => new CommentVm()
-                {
-                    Id = c.Id,
-                    Content = c.Content,
-                    CreateDate = c.CreateDate,
-                    KnowledgeBaseId = c.KnowledgeBaseId,
-                    LastModifiedDate = c.LastModifiedDate,
-                    OwnwerUserId = c.OwnwerUserId
-                })
-                .ToListAsync();
-
-            var pagination = new Pagination<CommentVm>
-            {
-                Items = items,
-                TotalRecords = totalRecords,
-            };
-            return Ok(pagination);
-        }
-
-        [HttpGet("{knowledgeBaseId}/comments/{commentId}")]
-        [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.VIEW)]
-        public async Task<IActionResult> GetCommentDetail(int commentId)
-        {
-            var comment = await _context.Comments.FindAsync(commentId);
-            if (comment == null)
-                return NotFound();
-
-            var commentVm = new CommentVm()
-            {
-                Id = comment.Id,
-                Content = comment.Content,
-                CreateDate = comment.CreateDate,
-                KnowledgeBaseId = comment.KnowledgeBaseId,
-                LastModifiedDate = comment.LastModifiedDate,
-                OwnwerUserId = comment.OwnwerUserId
-            };
-
-            return Ok(commentVm);
-        }
-
-        [HttpPost("{knowledgeBaseId}/comments")]
-        [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.CREATE)]
-        public async Task<IActionResult> PostComment(int knowledgeBaseId, [FromBody] CommentCreateRequest request)
-        {
-            var comment = new Comment()
-            {
-                Content = request.Content,
-                KnowledgeBaseId = request.KnowledgeBaseId,
-                OwnwerUserId = string.Empty/*TODO: GET USER FROM CLAIM*/,
-            };
-            _context.Comments.Add(comment);
-
-            var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
-            if (knowledgeBase != null)
-                return BadRequest();
-            knowledgeBase.NumberOfComments = knowledgeBase.NumberOfVotes.GetValueOrDefault(0) + 1;
-            _context.KnowledgeBases.Update(knowledgeBase);
-
-            var result = await _context.SaveChangesAsync();
-            if (result > 0)
-            {
-                return CreatedAtAction(nameof(GetCommentDetail), new { id = knowledgeBaseId, commentId = comment.Id }, request);
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
-
-        [HttpPut("{knowledgeBaseId}/comments/{commentId}")]
-        [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.UPDATE)]
-        public async Task<IActionResult> PutComment(int commentId, [FromBody] CommentCreateRequest request)
-        {
-            var comment = await _context.Comments.FindAsync(commentId);
-            if (comment == null)
-                return NotFound();
-            if (comment.OwnwerUserId != User.Identity.Name)
-                return Forbid();
-
-            comment.Content = request.Content;
-            _context.Comments.Update(comment);
-
-            var result = await _context.SaveChangesAsync();
-
-            if (result > 0)
-            {
-                return NoContent();
-            }
-            return BadRequest();
-        }
-
-        [HttpDelete("{knowledgeBaseId}/comments/{commentId}")]
-        [ClaimRequirement(FunctionCode.CONTENT_COMMENT, CommandCode.DELETE)]
-        public async Task<IActionResult> DeleteComment(int knowledgeBaseId, int commentId)
-        {
-            var comment = await _context.Comments.FindAsync(commentId);
-            if (comment == null)
-                return NotFound();
-
-            _context.Comments.Remove(comment);
-
-            var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
-            if (knowledgeBase != null)
-                return BadRequest();
-            knowledgeBase.NumberOfComments = knowledgeBase.NumberOfVotes.GetValueOrDefault(0) - 1;
-            _context.KnowledgeBases.Update(knowledgeBase);
-
-            var result = await _context.SaveChangesAsync();
-            if (result > 0)
-            {
-                var commentVm = new CommentVm()
-                {
-                    Id = comment.Id,
-                    Content = comment.Content,
-                    CreateDate = comment.CreateDate,
-                    KnowledgeBaseId = comment.KnowledgeBaseId,
-                    LastModifiedDate = comment.LastModifiedDate,
-                    OwnwerUserId = comment.OwnwerUserId
-                };
-                return Ok(commentVm);
-            }
-            return BadRequest();
-        }
-
-        #endregion Comments
 
         #region Votes
 
@@ -646,46 +485,5 @@ namespace JW.KS.API.Controllers
         }
 
         #endregion Reports
-
-        #region Attachments
-
-        [HttpGet("{knowledgeBaseId}/attachments")]
-        public async Task<IActionResult> GetAttachment(int knowledgeBaseId)
-        {
-            var query = await _context.Attachments
-                .Where(x => x.KnowledgeBaseId == knowledgeBaseId)
-                .Select(c => new AttachmentVm()
-                {
-                    Id = c.Id,
-                    LastModifiedDate = c.LastModifiedDate,
-                    CreateDate = c.CreateDate,
-                    FileName = c.FileName,
-                    FilePath = c.FilePath,
-                    FileSize = c.FileSize,
-                    FileType = c.FileType,
-                    KnowledgeBaseId = c.KnowledgeBaseId
-                }).ToListAsync();
-
-            return Ok(query);
-        }
-
-        [HttpDelete("{knowledgeBaseId}/attachments/{attachmentId}")]
-        public async Task<IActionResult> DeleteAttachment(int attachmentId)
-        {
-            var attachment = await _context.Attachments.FindAsync(attachmentId);
-            if (attachment == null)
-                return NotFound();
-
-            _context.Attachments.Remove(attachment);
-
-            var result = await _context.SaveChangesAsync();
-            if (result > 0)
-            {
-                return Ok();
-            }
-            return BadRequest();
-        }
-
-        #endregion Attachments
     }
 }

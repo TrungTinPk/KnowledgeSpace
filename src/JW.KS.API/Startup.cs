@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FluentValidation.AspNetCore;
 using JW.KS.API.Data;
 using JW.KS.API.Data.Entities;
+using JW.KS.API.Extensions;
 using JW.KS.API.IdentityServer;
 using JW.KS.API.Services;
 using JW.KS.ViewModels.Systems;
@@ -71,7 +72,12 @@ namespace JW.KS.API
                 options.Password.RequireUppercase = true;
                 options.User.RequireUniqueEmail = true;
             });
-            
+
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
+
             services.AddControllersWithViews()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RoleCreateRequestValidator>());
             
@@ -145,6 +151,7 @@ namespace JW.KS.API
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "JW.KS.API v1"));
             }
+            app.UseErrorWrapping();
             app.UseStaticFiles();
             app.UseIdentityServer();
             app.UseAuthentication();

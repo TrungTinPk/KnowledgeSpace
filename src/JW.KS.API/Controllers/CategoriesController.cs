@@ -4,6 +4,7 @@ using JW.KS.API.Authorization;
 using JW.KS.API.Constants;
 using JW.KS.API.Data;
 using JW.KS.API.Data.Entities;
+using JW.KS.API.Helpers;
 using JW.KS.ViewModels;
 using JW.KS.ViewModels.Contents;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,7 @@ namespace JW.KS.API.Controllers
 
         [HttpPost]
         [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.CREATE)]
+        [ApiValidationFilter]
         public async Task<IActionResult> PostCategory([FromBody] CategoryCreateRequest request)
         {
             var category = new Category()
@@ -41,7 +43,7 @@ namespace JW.KS.API.Controllers
             }
             else
             {
-                return BadRequest();
+                return BadRequest(new ApiBadRequestResponse("Create category failed"));
             }
         }
 
@@ -86,7 +88,7 @@ namespace JW.KS.API.Controllers
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Category with id: {id} is not found"));
 
             CategoryVm categoryvm = CreateCategoryVm(category);
 
@@ -95,15 +97,16 @@ namespace JW.KS.API.Controllers
 
         [HttpPut("{id}")]
         [ClaimRequirement(FunctionCode.CONTENT_CATEGORY, CommandCode.UPDATE)]
+        [ApiValidationFilter]
         public async Task<IActionResult> PutCategory(int id, [FromBody]CategoryCreateRequest request)
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Category with id: {id} is not found"));
 
             if (id == request.ParentId)
             {
-                return BadRequest("Category cannot be a child itself.");
+                return BadRequest(new ApiBadRequestResponse("Category cannot be a child itself."));
             }
 
             category.Name = request.Name;
@@ -119,7 +122,7 @@ namespace JW.KS.API.Controllers
             {
                 return NoContent();
             }
-            return BadRequest();
+            return BadRequest(new ApiBadRequestResponse("Update category failed"));
         }
 
         [HttpDelete("{id}")]
@@ -128,7 +131,7 @@ namespace JW.KS.API.Controllers
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Category with id: {id} is not found"));
 
             _context.Categories.Remove(category);
             var result = await _context.SaveChangesAsync();
@@ -137,7 +140,7 @@ namespace JW.KS.API.Controllers
                 CategoryVm categoryvm = CreateCategoryVm(category);
                 return Ok(categoryvm);
             }
-            return BadRequest();
+            return BadRequest(new ApiBadRequestResponse("Delete category failed"));
         }
 
         private static CategoryVm CreateCategoryVm(Category category)
