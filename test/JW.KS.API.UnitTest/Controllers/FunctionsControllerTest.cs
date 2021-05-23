@@ -7,6 +7,8 @@ using JW.KS.API.Data.Entities;
 using JW.KS.ViewModels;
 using JW.KS.ViewModels.Systems;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
 using Xunit;
 
 namespace JW.KS.API.UnitTest.Controllers
@@ -14,16 +16,18 @@ namespace JW.KS.API.UnitTest.Controllers
     public class FunctionsControllerTest
     {
         private ApplicationDbContext _context;
+        private Mock<ILogger<FunctionsController>> _mockLogger;
 
         public FunctionsControllerTest()
         {
             _context = new InMemoryDbContextFactory().GetApplicationDbContext();
+            _mockLogger = new Mock<ILogger<FunctionsController>>();
         }
         
         [Fact]
         public void Should_CreateInstance_NotNull_Success()
         {
-            var controller = new FunctionsController(_context);
+            var controller = new FunctionsController(_context, _mockLogger.Object);
             
             Assert.NotNull(controller);
         }
@@ -31,7 +35,7 @@ namespace JW.KS.API.UnitTest.Controllers
         [Fact]
         public async Task PostFunction_ValidInput_Success()
         {
-            var controller = new FunctionsController(_context);
+            var controller = new FunctionsController(_context, _mockLogger.Object);
             var result = await controller.PostFunction(new FunctionCreateRequest()
             {
                 Id = "PostFunction_ValidInput_Success",
@@ -57,8 +61,8 @@ namespace JW.KS.API.UnitTest.Controllers
                 }
             });
             await _context.SaveChangesAsync();
-            var functionsController = new FunctionsController(_context);
-            
+            var functionsController = new FunctionsController(_context, _mockLogger.Object);
+
             var result = await functionsController.PostFunction(new FunctionCreateRequest()
             {
                 Id = "PostFunction_ValidInput_Failed",
@@ -85,7 +89,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 }
             });
             await _context.SaveChangesAsync();
-            var functionsController = new FunctionsController(_context);
+            var functionsController = new FunctionsController(_context, _mockLogger.Object);
             var result = await functionsController.GetFunctions();
             var okResult = result as OkObjectResult;
             var functionVms = okResult.Value as IEnumerable<FunctionVm>;
@@ -127,7 +131,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 }
             });
             await _context.SaveChangesAsync();
-            var functionsController = new FunctionsController(_context);
+            var functionsController = new FunctionsController(_context, _mockLogger.Object);
             var result = await functionsController.GetFunctionsPaging(null, 1, 2);
             var okResult = result as OkObjectResult;
             var functionVm = okResult.Value as Pagination<FunctionVm>;
@@ -150,7 +154,7 @@ namespace JW.KS.API.UnitTest.Controllers
             });
             await _context.SaveChangesAsync();
 
-            var functionsController = new FunctionsController(_context);
+            var functionsController = new FunctionsController(_context, _mockLogger.Object);
             var result = await functionsController.GetFunctionsPaging("GetFunctionsPaging_HasFilter_ReturnSuccess", 1, 2);
             var okResult = result as OkObjectResult;
             var functionVm = okResult.Value as Pagination<FunctionVm>;
@@ -172,7 +176,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 }
             });
             await _context.SaveChangesAsync();
-            var functionsController = new FunctionsController(_context);
+            var functionsController = new FunctionsController(_context, _mockLogger.Object);
             var result = await functionsController.GetById("GetById_HasData_ReturnSuccess");
             var okResult = result as OkObjectResult;
             Assert.NotNull(okResult);
@@ -184,7 +188,7 @@ namespace JW.KS.API.UnitTest.Controllers
         [Fact]
         public async Task PutFunction_ValidInput_Success()
         {
-            var functionsController = new FunctionsController(_context);
+            var functionsController = new FunctionsController(_context, _mockLogger.Object);
 
             var result = await functionsController.PutFunction("PutFunction_ValidInput_Failed", new FunctionCreateRequest()
             {
@@ -210,7 +214,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 }
             });
             await _context.SaveChangesAsync();
-            var functionsController = new FunctionsController(_context);
+            var functionsController = new FunctionsController(_context, _mockLogger.Object);
             var result = await functionsController.DeleteFunction("DeleteFunction_ValidInput_Success");
             Assert.IsType<OkObjectResult>(result);
         }
@@ -218,7 +222,7 @@ namespace JW.KS.API.UnitTest.Controllers
         [Fact]
         public async Task DeleteFunction_ValidInput_Failed()
         {
-            var functionsController = new FunctionsController(_context);
+            var functionsController = new FunctionsController(_context, _mockLogger.Object);
             var result = await functionsController.DeleteFunction("DeleteFunction_ValidInput_Failed");
             Assert.IsType<NotFoundResult>(result);
         }

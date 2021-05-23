@@ -100,7 +100,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 .Setup(x => x.Roles)
                 .Returns(_roleSources.AsQueryable().BuildMock().Object);
             var rolesController = new RolesController(_mockRoleManager.Object, _context);
-            var result = await rolesController.GetAllRolesPaging(null, 1, 2);
+            var result = await rolesController.GetRolesPaging(null, 1, 2);
             var okResult = result as OkObjectResult;
             var roleVMs = okResult.Value as Pagination<RoleVm>;
             Assert.Equal(4, roleVMs.TotalRecords);
@@ -114,7 +114,7 @@ namespace JW.KS.API.UnitTest.Controllers
                 .Setup(x => x.Roles)
                 .Returns(_roleSources.AsQueryable().BuildMock().Object);
             var rolesController = new RolesController(_mockRoleManager.Object, _context);
-            var result = await rolesController.GetAllRolesPaging("test3", 1, 2);
+            var result = await rolesController.GetRolesPaging("test3", 1, 2);
             var okResult = result as OkObjectResult;
             var roleVMs = okResult.Value as Pagination<RoleVm>;
             Assert.Equal(1, roleVMs.TotalRecords);
@@ -126,7 +126,7 @@ namespace JW.KS.API.UnitTest.Controllers
         {
             _mockRoleManager.Setup(x => x.Roles).Throws<Exception>();
             var rolesController = new RolesController(_mockRoleManager.Object, _context);
-            await Assert.ThrowsAsync<Exception>(async () => await rolesController.GetAllRolesPaging(null,1,1));
+            await Assert.ThrowsAsync<Exception>(async () => await rolesController.GetRolesPaging(null,1,1));
         }
 
         [Fact]

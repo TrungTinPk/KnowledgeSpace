@@ -1,5 +1,7 @@
 ﻿using JW.KS.API.Helpers;
+using JW.KS.ViewModels.Contents;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -10,16 +10,19 @@ using JW.KS.ViewModels;
 using JW.KS.ViewModels.Systems;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace JW.KS.API.Controllers
 {
     public class FunctionsController : BaseController
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<FunctionsController> _logger;
 
-        public FunctionsController(ApplicationDbContext context)
+        public FunctionsController(ApplicationDbContext context, ILogger<FunctionsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
         
         [HttpPost]
@@ -27,6 +30,7 @@ namespace JW.KS.API.Controllers
         [ApiValidationFilter]
         public async Task<IActionResult> PostFunction([FromBody]FunctionCreateRequest request)
         {
+            _logger.LogInformation("Begin PostFunction API");
             var dbFunction = await _context.Functions.FindAsync(request.Id);
             if (dbFunction != null)
                 return BadRequest(new ApiBadRequestResponse($"Function with id {request.Id} is existed."));
@@ -44,10 +48,12 @@ namespace JW.KS.API.Controllers
             
             if (result > 0)
             {
+                _logger.LogInformation("End PostFunction API - Success");
                 return CreatedAtAction(nameof(GetById), new {id = function.Id}, request);
             }
             else
             {
+                _logger.LogInformation("End PostFunction API - Failed");
                 return BadRequest(new ApiBadRequestResponse("Create function is failed"));
             }
         }
