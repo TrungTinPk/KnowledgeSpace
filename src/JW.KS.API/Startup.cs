@@ -26,6 +26,8 @@ namespace JW.KS.API
 {
     public class Startup
     {
+        private readonly string KspSpecificOrigins = "KspSpecificOrigins";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -50,14 +52,25 @@ namespace JW.KS.API
                 options.Events.RaiseFailureEvents = true;
                 options.Events.RaiseSuccessEvents = true;
             })
-            .AddInMemoryClients(Config.Clients)
+            .AddInMemoryClients(Configuration.GetSection("IdentityServer:Clients"))
             .AddInMemoryApiScopes(Config.Scopes)
             .AddInMemoryApiResources(Config.Apis)
             .AddInMemoryIdentityResources(Config.Ids)
             .AddAspNetIdentity<User>()
             .AddProfileService<IdentityProfileService>()
             .AddDeveloperSigningCredential();
-            
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(KspSpecificOrigins,
+                builder =>
+                {
+                    builder.WithOrigins(Configuration["AllowOrigins"])
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
             services.Configure<IdentityOptions>(options =>
             {
                 // Default Lockout settings.
@@ -161,8 +174,8 @@ namespace JW.KS.API
             app.UseRouting();
 
             app.UseAuthorization();
-            
-            
+            app.UseCors(KspSpecificOrigins);
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();

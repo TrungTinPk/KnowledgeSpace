@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './shared';
-import { ProtectedZoneModule } from './protected-zone/layout.module';
 
 const routes: Routes = [
     {
@@ -9,7 +8,12 @@ const routes: Routes = [
         loadChildren: () => import('./protected-zone/layout.module').then((m) => m.ProtectedZoneModule),
         canActivate: [AuthGuard]
     },
-    { path: 'login', loadChildren: () => import('./login/login.module').then((m) => m.LoginModule) },
+    {
+        path: 'login',
+        loadChildren: () => import('./login/login.module').then((m) => m.LoginModule) },
+    {
+        path: 'auth-callback',
+        loadChildren: () => import('./auth-callback/auth-callback.module').then(m => m.AuthCallbackModule) },
     {
         path: 'error',
         loadChildren: () => import('./server-error/server-error.module').then((m) => m.ServerErrorModule)
@@ -18,8 +22,12 @@ const routes: Routes = [
         path: 'access-denied',
         loadChildren: () => import('./access-denied/access-denied.module').then((m) => m.AccessDeniedModule)
     },
-    { path: 'not-found', loadChildren: () => import('./not-found/not-found.module').then((m) => m.NotFoundModule) },
-    { path: '**', redirectTo: 'not-found' }
+    {
+        path: 'not-found',
+        loadChildren: () => import('./not-found/not-found.module').then((m) => m.NotFoundModule) },
+    {
+        path: '**', redirectTo: 'not-found'
+    }
 ];
 
 @NgModule({
