@@ -208,6 +208,7 @@ namespace JW.KS.API.Controllers
                             Name = f.Name,
                             Url = f.Url,
                             ParentId = f.ParentId,
+                            Icon = f.Icon,
                             SortOrder = f.SortOrder,
                         };
             var data = await query.Distinct()

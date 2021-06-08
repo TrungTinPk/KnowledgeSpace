@@ -1,0 +1,29 @@
+import { BaseService } from '@app/shared/services/base.service';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+
+@Injectable({ providedIn: 'root' })
+export class UtilitiesService extends BaseService {
+    constructor(
+        private http: HttpClient
+    ) {
+        super();
+    }
+
+    unflatteringForLeftMenu = (arr: any[]): any => {
+        const map = {};
+        const roots: any[] = [];
+        for (let i = 0; i < arr.length; i++) {
+            const node = arr[i];
+            node.children = [];
+            map[node.id] = i; // use map to look-up the parents
+            if (node.parentId !== null) {
+                delete node['children'];
+                arr[map[node.parentId]].children.push(node);
+            } else {
+                roots.push(node);
+            }
+        }
+        return roots;
+    }
+}

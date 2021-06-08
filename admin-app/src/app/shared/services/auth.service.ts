@@ -1,5 +1,5 @@
 import { BaseService } from './base.service';
-import { User, UserManager, UserManagerSettings } from 'oidc-client';
+import { Profile, User, UserManager, UserManagerSettings } from 'oidc-client';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
@@ -46,6 +46,10 @@ export class AuthService extends BaseService {
 
     get name(): string {
         return this.user != null ? this.user.profile.name : '';
+    }
+
+    get profile(): Profile {
+        return this.user != null ? this.user.profile : null;
     }
 
     async signout() {

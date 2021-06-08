@@ -41,7 +41,8 @@ namespace JW.KS.API.Controllers
                 Name = request.Name,
                 Url = request.Url,
                 SortOrder = request.SortOrder,
-                ParentId = request.ParentId
+                ParentId = request.ParentId,
+                Icon = request.Icon
             };
             _context.Functions.Add(function);
             var result = await _context.SaveChangesAsync();
@@ -68,7 +69,8 @@ namespace JW.KS.API.Controllers
                 Name = f.Name,
                 Url = f.Url,
                 SortOrder = f.SortOrder,
-                ParentId = f.ParentId
+                ParentId = f.ParentId,
+                Icon = f.Icon
             }).ToListAsync();
 
             return Ok(functionVms);
@@ -95,7 +97,8 @@ namespace JW.KS.API.Controllers
                     Name = f.Name,
                     Url = f.Url,
                     SortOrder = f.SortOrder,
-                    ParentId = f.ParentId
+                    ParentId = f.ParentId,
+                    Icon = f.Icon
                 })
                 .ToListAsync();
 
@@ -122,7 +125,8 @@ namespace JW.KS.API.Controllers
                 Name = function.Name,
                 Url = function.Url,
                 SortOrder = function.SortOrder,
-                ParentId = function.ParentId
+                ParentId = function.ParentId,
+                Icon = function.Icon
             };
             return Ok(functionVm);
         }
@@ -139,6 +143,7 @@ namespace JW.KS.API.Controllers
             function.Url = request.Url;
             function.SortOrder = request.SortOrder;
             function.ParentId = request.ParentId;
+            function.Icon = request.Icon;
             
             _context.Functions.Update(function);
             var result = await _context.SaveChangesAsync();
@@ -169,7 +174,8 @@ namespace JW.KS.API.Controllers
                     Name = function.Name,
                     Url = function.Url,
                     SortOrder = function.SortOrder,
-                    ParentId = function.ParentId
+                    ParentId = function.ParentId,
+                    Icon = function.Icon
                 };
                 return Ok(functionVm);
             }
