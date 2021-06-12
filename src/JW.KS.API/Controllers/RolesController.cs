@@ -71,7 +71,7 @@ namespace JW.KS.API.Controllers
             }
 
             var totalRecords = await query.CountAsync();
-            var items = await query.Skip(page - 1 * size)
+            var items = await query.Skip((page - 1) * size)
                 .Take(size)
                 .Select(x => new RoleVm()
                 {

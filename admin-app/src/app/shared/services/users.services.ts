@@ -7,7 +7,7 @@ import { environment } from '@environments/environment';
 import { UtilitiesService } from '@app/shared/services/utilities.service';
 
 @Injectable({ providedIn: 'root' })
-export class UserService extends BaseService {
+export class UsersService extends BaseService {
     constructor(
         private http: HttpClient,
         private utilitiesService: UtilitiesService

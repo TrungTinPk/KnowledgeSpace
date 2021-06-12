@@ -5,7 +5,17 @@ import { UsersComponent } from './users/users.component';
 import { RolesComponent } from './roles/roles.component';
 import { PermissionsComponent } from './permissions/permissions.component';
 import { SystemsRoutingModule } from './systems-routing.module';
-
+import { BsModalService, ModalModule } from 'ngx-bootstrap/modal';
+import { NotificationService } from '@app/shared/services';
+import { PanelModule } from 'primeng/panel';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { PaginatorModule } from 'primeng/paginator';
+import { BlockUIModule } from 'primeng/blockui';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ValidationMessageModule } from '@app/shared';
+import { RolesDetailComponent } from './roles/roles-detail/roles-detail.component';
 
 
 @NgModule({
@@ -13,11 +23,26 @@ import { SystemsRoutingModule } from './systems-routing.module';
     FunctionsComponent,
     UsersComponent,
     RolesComponent,
-    PermissionsComponent
+    PermissionsComponent,
+    RolesDetailComponent
   ],
   imports: [
     CommonModule,
-      SystemsRoutingModule
+    SystemsRoutingModule,
+    PanelModule,
+    ButtonModule,
+    TableModule,
+    PaginatorModule,
+    BlockUIModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ProgressSpinnerModule,
+    ValidationMessageModule,
+    ModalModule.forRoot()
+  ],
+  providers: [
+      NotificationService,
+      BsModalService
   ]
 })
 export class SystemsModule { }
