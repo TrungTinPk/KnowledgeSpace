@@ -29,10 +29,12 @@ export class RolesService extends BaseService {
     }
 
     getAllPaging(filter, pageIndex, pageSize) {
-        return this.http.get<Pagination<Role>>(`${environment.apiUrl}/api/roles/filter?page=${pageIndex}&size=${pageSize}&filter=${filter}`, { headers: this._sharedHeaders })
-            .pipe(map((response: Pagination<Role>) => {
-                return response;
-            }), catchError(this.handleError));
+        return this.http.get<Pagination<Role>>(
+            `${environment.apiUrl}/api/roles/filter?page=${pageIndex}&size=${pageSize}&filter=${filter}`,
+            { headers: this._sharedHeaders })
+        .pipe(map((response: Pagination<Role>) => {
+            return response;
+        }), catchError(this.handleError));
     }
 
     delete(id) {
@@ -40,5 +42,12 @@ export class RolesService extends BaseService {
             .pipe(
                 catchError(this.handleError)
             );
+    }
+
+    getAll() {
+        return this.http.get<Role[]>(`${environment.apiUrl}/api/roles`, {headers : this._sharedHeaders})
+            .pipe(map((response: Role[]) => {
+                return response;
+            }), catchError(this.handleError));
     }
 }

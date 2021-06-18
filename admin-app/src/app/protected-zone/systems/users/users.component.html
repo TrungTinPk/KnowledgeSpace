@@ -1,4 +1,117 @@
-<p>users list!</p>
-<ul>
-    <li *ngFor="let user of users$ | async">{{user.userName}}</li>
-</ul>
+<div class="animated fadeIn">
+    <p-card #cadUser [style]="{'margin-bottom':'10px'}">
+        <p-toolbar styleClass='p-mb-4'>
+            <ng-template pTemplate="left">
+                <button appPermission appFunction="SYSTEM_USER" appAction="CREATE" pButton type="button" label="Thêm"
+                        icon="fa fa-plus" class="p-mr-2" (click)="showAddModal()"></button>
+                <button appPermission appFunction="SYSTEM_USER" appAction="DELETE" pButton type="button" label="Xóa"
+                        icon="fa fa-trash" class="p-mr-2 p-button-danger" *ngIf="selectedItems.length > 0" (click)="deleteItems()"></button>
+                <button appPermission appFunction="SYSTEM_USER" appAction="UPDATE" pButton type="button" label="Sửa"
+                        icon="fa fa-edit" class="p-mr-2 p-button-warning" *ngIf="selectedItems.length== 1"
+                        (click)="showEditModal()"></button>
+                <p-checkbox label="Gán quyền" [(ngModel)]="showRoleAssign" (click)="showHideRoleTable()" binary="true">
+                </p-checkbox>
+            </ng-template>
+            <ng-template pTemplate="right">
+                <input style="width: 100%;" pInputText (keyup.enter)="loadData()" [(ngModel)]="keyword"
+                       placeholder="Nhập tên người dùng..." type="text">
+            </ng-template>
+        </p-toolbar>
+        <p-table #dt [value]="items" selectionMode="multiple" [(selection)]="selectedItems" [metaKeySelection]="true"
+                 [responsive]="true" [scrollable]="false" (onRowSelect)="onRowSelect($event)"
+                 (onRowUnselect)="onRowUnselect($event)">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 3rem">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th [pSortableColumn]="'userName'">Tài khoản
+                        <p-sortIcon [field]="'UserName'"></p-sortIcon>
+                    </th>
+                    <th [pSortableColumn]="'firstName'">Tên
+                        <p-sortIcon [field]="'firstName'"></p-sortIcon>
+                    </th>
+                    <th [pSortableColumn]="'lastName'">Họ
+                        <p-sortIcon [field]="'firstName'"></p-sortIcon>
+                    </th>
+                    <th [pSortableColumn]="'email'">Email
+                        <p-sortIcon [field]="'email'"></p-sortIcon>
+                    </th>
+                    <th style="width: 100px" [pSortableColumn]="'dob'">Ngày sinh
+                        <p-sortIcon [field]="'dob'"></p-sortIcon>
+                    </th>
+                    <th style="width: 100px" [pSortableColumn]="'phoneNumber'">Số điện thoại
+                        <p-sortIcon [field]="'phoneNumber'"></p-sortIcon>
+                    </th>
+                </tr>
+
+            </ng-template>
+            <ng-template pTemplate="body" let-row>
+                <tr [pSelectableRow]="row">
+                    <td style="width: 3rem">
+                        <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                    </td>
+                    <td>{{row.userName}}</td>
+                    <td>{{row.firstName}}</td>
+                    <td>{{row.lastName}}</td>
+                    <td>{{row.email}}</td>
+                    <td style="width: 100px">{{row.dob | date:'dd/MM/yyyy'}}</td>
+                    <td style="width: 100px">{{row.phoneNumber}}</td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+                <div style="text-align: left">
+                    Tổng số bản ghi: {{totalRecords | number}}
+                </div>
+            </ng-template>
+        </p-table>
+        <p-paginator [rows]="pageSize" [totalRecords]="totalRecords" (onPageChange)="pageChanged($event)"
+                     [rowsPerPageOptions]="[10,20,50,100]"></p-paginator>
+        <p-blockUI [target]="cadUser" [blocked]="blockedPanel">
+            <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
+                               strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
+        </p-blockUI>
+    </p-card>
+
+    <p-card #cadRole *ngIf="showRoleAssign">
+        <p-toolbar styleClass='p-mb-12'>
+            <ng-template pTemplate="left">
+                <button class='p-mr-2' appPermission appFunction="ROLE" appAction="CREATE" pButton type="button" label="Thêm quyền"
+                        icon="fa fa-plus" *ngIf="selectedItems !=null" (click)="addUserRole()"></button>
+                <button appPermission appFunction="ROLE" appAction="DELETE" pButton type="button" label="Xóa quyền"
+                        icon="fa fa-remove" class="p-mr-2 p-button-danger" *ngIf="selectedRoleItems.length>0"
+                        (click)="removeRoles()"></button>
+            </ng-template>
+        </p-toolbar>
+        <p-table #dt2 [value]="userRoles" selectionMode="multiple" [(selection)]="selectedRoleItems"
+                 [metaKeySelection]="true" [responsive]="true">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th style="width: 3rem">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th [pSortableColumn]="'name'">Tên quyền
+                        <p-sortIcon [field]="'name'"></p-sortIcon>
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row>
+                <tr [pSelectableRow]="row">
+                    <td style="width: 3rem">
+                        <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                    </td>
+                    <td>{{row}}</td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="summary">
+                <div style="text-align: left">
+                    Tổng số quyền: {{totalUserRoleRecords}}
+                </div>
+            </ng-template>
+        </p-table>
+        <p-blockUI [target]="cadRole" [blocked]="blockedPanelRole">
+            <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
+                               strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
+        </p-blockUI>
+    </p-card>
+</div>

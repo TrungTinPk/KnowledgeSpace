@@ -1,0 +1,65 @@
+<!--Modal add and edit-->
+<div class="modal-header">
+    <h4 class="modal-title pull-left">{{dialogTitle}}</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<form novalidate [formGroup]="entityForm" (ngSubmit)="saveChange()">
+    <div class="modal-body div-scroll">
+        <p-card #cadUserDetail>
+            <div class='p-fluid p-formgrid p-grid'>
+                <div class="p-field p-col-12 p-md-6">
+                    <label for="userName">Tài khoản</label>
+                    <input id='userName' type="text" pInputText [pKeyFilter]="noSpecial" formControlName="userName">
+                    <app-validation-message [entityForm]="entityForm" fieldName="userName"
+                                            [validationMessages]="validation_messages"></app-validation-message>
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                    <label for="password">Mật khẩu</label>
+                    <input id='password' type="password" pInputText formControlName="password">
+                    <app-validation-message [entityForm]="entityForm" fieldName="password"
+                                            [validationMessages]="validation_messages"></app-validation-message>
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                    <label for="firstName">Họ</label>
+                    <input id='firstName' type="text" pInputText [pKeyFilter]="noSpecial" formControlName="firstName">
+                    <app-validation-message [entityForm]="entityForm" fieldName="firstName"
+                                            [validationMessages]="validation_messages"></app-validation-message>
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                    <label for="lastName">Tên</label>
+                    <input id='lastName' type="text" pInputText [pKeyFilter]="noSpecial" formControlName="lastName">
+                    <app-validation-message [entityForm]="entityForm" fieldName="lastName"
+                                            [validationMessages]="validation_messages"></app-validation-message>
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                    <label for="email">Email</label>
+                    <input id='email' type="text" pInputText pKeyFilter="email" formControlName="email">
+                    <app-validation-message [entityForm]="entityForm" fieldName="email"
+                                            [validationMessages]="validation_messages"></app-validation-message>
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                    <label for="phoneNumber">Điện thoại:</label>
+                    <input id='phoneNumber' type="text" pInputText pKeyFilter="int" formControlName="phoneNumber">
+                </div>
+                <div class="p-field p-col-12 p-md-6">
+                    <label for="dob">Ngày sinh</label>
+                    <p-calendar id='dob' formControlName="dob" dateFormat="dd/mm/yy" [showIcon]="true" [locale]="vi"
+                                [monthNavigator]="true" [yearNavigator]="true" yearRange="1900:2030" showButtonBar="true">
+                    </p-calendar>
+                </div>
+            </div>
+            <p-blockUI [target]="cadUserDetail" [blocked]="blockedPanel">
+                <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
+                                   strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
+            </p-blockUI>
+        </p-card>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" pbutton class="btn btn-primary" [disabled]="!entityForm.valid || btnDisabled">Lưu
+            lại</button>
+        &nbsp;
+        <button type="button" pbutton class="btn btn-default" (click)="bsModalRef.hide()">Đóng</button>
+    </div>
+</form>

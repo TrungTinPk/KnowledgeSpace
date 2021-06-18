@@ -3,7 +3,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { NotificationService, RolesService } from '@app/shared/services';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { MessageConstants } from '@app/protected-zone/systems/constants';
+import { MessageConstants } from '@app/shared/constants';
 
 @Component({
   selector: 'app-roles-detail',

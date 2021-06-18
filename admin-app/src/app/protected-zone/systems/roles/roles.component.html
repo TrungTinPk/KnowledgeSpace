@@ -1,26 +1,24 @@
 <p>Danh sách nhóm quyền</p>
 <div class="animated fadeIn">
-    <p-panel #pnl>
+    <p-card #cad>
+        <p-toolbar styleClass='p-mb-4'>
+            <ng-template pTemplate="left">
+                <button class="p-mr-2" appPermission appFunction="SYSTEM_ROLE" appAction="CREATE" pButton type="button" label="Thêm"
+                        icon="fa fa-plus" (click)="showAddModal()"></button>
+                <button  appPermission appFunction="SYSTEM_ROLE" appAction="DELETE" pButton type="button" label="Xóa"
+                         icon="fa fa-trash" class="p-button-danger p-mr-2" *ngIf="selectedItems.length > 0"
+                         (click)="deleteItems()"></button>
+                <button appPermission appFunction="SYSTEM_ROLE" appAction="UPDATE" pButton type="button" label="Sửa"
+                        icon="fa fa-edit" class="p-button-warning p-mr-2" *ngIf="selectedItems.length== 1"
+                        (click)="showEditModal()"></button>
+            </ng-template>
+            <ng-template pTemplate="right">
+                <input style="width: 100%;" pInputText (keyup.enter)="loadData()" [(ngModel)]="keyword"
+                       placeholder="Nhập từ khóa..." type="text">
+            </ng-template>
+        </p-toolbar>
         <p-table #dt [value]="items" selectionMode="multiple" [(selection)]="selectedItems" [metaKeySelection]="true"
                  [responsive]="true">
-            <ng-template pTemplate="caption">
-                <div class='p-grid'>
-                    <div class="p-col-6">
-                        <button class="p-mr-2" appPermission appFunction="SYSTEM_ROLE" appAction="CREATE" pButton type="button" label="Thêm"
-                                icon="fa fa-plus" (click)="showAddModal()"></button>
-                        <button  appPermission appFunction="SYSTEM_ROLE" appAction="DELETE" pButton type="button" label="Xóa"
-                                icon="fa fa-trash" class="p-button-danger p-mr-2" *ngIf="selectedItems.length > 0"
-                                (click)="deleteItems()"></button>
-                        <button appPermission appFunction="SYSTEM_ROLE" appAction="UPDATE" pButton type="button" label="Sửa"
-                                icon="fa fa-edit" class="p-button-warning p-mr-2" *ngIf="selectedItems.length== 1"
-                                (click)="showEditModal()"></button>
-                    </div>
-                    <div class="p-col-6">
-                        <input style="width: 100%;" pInputText (keyup.enter)="loadData()" [(ngModel)]="keyword"
-                               placeholder="Nhập từ khóa..." type="text">
-                    </div>
-                </div>
-            </ng-template>
             <ng-template pTemplate="header">
                 <tr>
                     <th style="width: 3rem">
@@ -50,13 +48,11 @@
                 </div>
             </ng-template>
         </p-table>
-        <p-footer>
-            <p-paginator [rows]="pageSize" [totalRecords]="totalRecords" (onPageChange)="pageChanged($event)"
-                         [rowsPerPageOptions]="[10,20,50,100]"></p-paginator>
-            <p-blockUI [target]="pnl" [blocked]="blockedPanel">
-                <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
-                                   strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
-            </p-blockUI>
-        </p-footer>
-    </p-panel>
+        <p-paginator [rows]="pageSize" [totalRecords]="totalRecords" (onPageChange)="pageChanged($event)"
+                     [rowsPerPageOptions]="[10,20,50,100]"></p-paginator>
+        <p-blockUI [target]="cad" [blocked]="blockedPanel">
+            <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
+                               strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
+        </p-blockUI>
+    </p-card>
 </div>

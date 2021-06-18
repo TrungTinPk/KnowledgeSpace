@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FunctionsComponent } from './functions/functions.component';
 import { UsersComponent } from './users/users.component';
 import { RolesComponent } from './roles/roles.component';
@@ -16,6 +16,14 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ValidationMessageModule } from '@app/shared';
 import { RolesDetailComponent } from './roles/roles-detail/roles-detail.component';
+import { InputTextModule } from 'primeng/inputtext';
+import { CardModule } from 'primeng/card';
+import { ToolbarModule } from 'primeng/toolbar';
+import { UsersDetailComponent } from './users/users-detail/users-detail.component';
+import { RolesAssignComponent } from './users/roles-assign/roles-assign.component';
+import { CheckboxModule } from 'primeng/checkbox';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { CalendarModule } from 'primeng/calendar';
 
 
 @NgModule({
@@ -24,25 +32,34 @@ import { RolesDetailComponent } from './roles/roles-detail/roles-detail.componen
     UsersComponent,
     RolesComponent,
     PermissionsComponent,
-    RolesDetailComponent
+    RolesDetailComponent,
+    UsersDetailComponent,
+    RolesAssignComponent
   ],
-  imports: [
-    CommonModule,
-    SystemsRoutingModule,
-    PanelModule,
-    ButtonModule,
-    TableModule,
-    PaginatorModule,
-    BlockUIModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ProgressSpinnerModule,
-    ValidationMessageModule,
-    ModalModule.forRoot()
-  ],
+    imports: [
+        CommonModule,
+        SystemsRoutingModule,
+        PanelModule,
+        ButtonModule,
+        TableModule,
+        InputTextModule,
+        PaginatorModule,
+        BlockUIModule,
+        FormsModule,
+        ReactiveFormsModule,
+        ProgressSpinnerModule,
+        ValidationMessageModule,
+        ModalModule.forRoot(),
+        CardModule,
+        ToolbarModule,
+        CheckboxModule,
+        KeyFilterModule,
+        CalendarModule
+    ],
   providers: [
       NotificationService,
-      BsModalService
+      BsModalService,
+      DatePipe
   ]
 })
 export class SystemsModule { }

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MessageConstants } from '@app/protected-zone/systems/constants';
+import { MessageConstants } from '@app/shared/constants';
 import { RolesDetailComponent } from '@app/protected-zone/systems/roles/roles-detail/roles-detail.component';
 import { Pagination, Role } from '@app/shared/models';
 import { Subscription } from 'rxjs';

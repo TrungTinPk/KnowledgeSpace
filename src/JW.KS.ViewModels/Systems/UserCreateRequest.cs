@@ -15,6 +15,6 @@ namespace JW.KS.ViewModels.Systems
 
         public string LastName { get; set; }
 
-        public DateTime Dob { get; set; }
+        public string Dob { get; set; }
     }
 }
