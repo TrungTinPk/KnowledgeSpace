@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { NotificationService, RolesService } from '@app/shared/services';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -10,7 +10,7 @@ import { MessageConstants } from '@app/shared/constants';
   templateUrl: './roles-detail.component.html',
   styleUrls: ['./roles-detail.component.scss']
 })
-export class RolesDetailComponent implements OnInit {
+export class RolesDetailComponent implements OnInit, OnDestroy {
 
     constructor(
         public bsModalRef: BsModalRef,

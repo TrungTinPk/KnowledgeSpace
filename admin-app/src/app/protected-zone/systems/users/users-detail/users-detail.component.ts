@@ -1,16 +1,17 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit} from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { NotificationService, UsersService } from '@app/shared/services';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { MessageConstants } from '@app/shared/constants';
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-users-detail',
   templateUrl: './users-detail.component.html',
   styleUrls: ['./users-detail.component.scss']
 })
-export class UsersDetailComponent implements OnInit {
+export class UsersDetailComponent implements OnInit, OnDestroy {
 
     constructor(
       public bsModalRef: BsModalRef,
@@ -20,6 +21,7 @@ export class UsersDetailComponent implements OnInit {
       private datePipe: DatePipe
     ) { }
 
+    private subscription = new Subscription();
     public blockedPanel = false;
     public myRoles: string[] = [];
     public entityForm: FormGroup;
@@ -120,29 +122,31 @@ export class UsersDetailComponent implements OnInit {
     loadUserDetail(id: any) {
         this.btnDisabled = true;
         this.blockedPanel = true;
-        this.usersService.getDetail(id)
-            .subscribe((response) => {
-                const dob: Date = new Date(response.dob);
-                this.entityForm.setValue({
-                    id: response.id,
-                    firstName: response.firstName,
-                    lastName: response.lastName,
-                    userName: response.userName,
-                    email: response.email,
-                    password: '',
-                    phoneNumber: response.phoneNumber,
-                    dob: dob
-                });
-                setTimeout(() => {
-                    this.btnDisabled = false;
-                    this.blockedPanel = false;
-                }, 1000);
-            }, error => {
-                setTimeout(() => {
-                    this.btnDisabled = false;
-                    this.blockedPanel = false;
-                }, 1000);
-            });
+        this.subscription.add(
+            this.usersService.getDetail(id)
+                .subscribe((response) => {
+                    const dob: Date = new Date(response.dob);
+                    this.entityForm.setValue({
+                        id: response.id,
+                        firstName: response.firstName,
+                        lastName: response.lastName,
+                        userName: response.userName,
+                        email: response.email,
+                        password: '',
+                        phoneNumber: response.phoneNumber,
+                        dob: dob
+                    });
+                    setTimeout(() => {
+                        this.btnDisabled = false;
+                        this.blockedPanel = false;
+                    }, 1000);
+                }, error => {
+                    setTimeout(() => {
+                        this.btnDisabled = false;
+                        this.blockedPanel = false;
+                    }, 1000);
+                })
+        );
     }
 
     saveChange() {
@@ -151,41 +155,48 @@ export class UsersDetailComponent implements OnInit {
         const rawValues = this.entityForm.getRawValue();
         rawValues.dob = this.datePipe.transform(this.entityForm.controls['dob'].value, 'MM/dd/yyyy');
         if (this.entityId) {
-            this.usersService.update(this.entityId, rawValues)
-                .subscribe(() => {
-                    this.notificationService.showSuccess(MessageConstants.UPDATED_OK_MSG);
+            this.subscription.add(
+                this.usersService.update(this.entityId, rawValues)
+                    .subscribe(() => {
+                        this.notificationService.showSuccess(MessageConstants.UPDATED_OK_MSG);
 
-                    setTimeout(() => {
-                        this.btnDisabled = false;
-                        this.blockedPanel = false;
-                    }, 1000);
-                    this.saved.emit(this.entityForm.value);
-                }, error => {
-                    this.notificationService.showError(error);
-                    setTimeout(() => {
-                        this.btnDisabled = false;
-                        this.blockedPanel = false;
-                    }, 1000);
-                });
+                        setTimeout(() => {
+                            this.btnDisabled = false;
+                            this.blockedPanel = false;
+                        }, 1000);
+                        this.saved.emit(this.entityForm.value);
+                    }, error => {
+                        this.notificationService.showError(error);
+                        setTimeout(() => {
+                            this.btnDisabled = false;
+                            this.blockedPanel = false;
+                        }, 1000);
+                    })
+            );
         } else {
-            this.usersService.add(rawValues)
-                .subscribe(() => {
-                    this.notificationService.showSuccess(MessageConstants.CREATED_OK_MSG);
-                    this.saved.emit(this.entityForm.value);
+            this.subscription.add(
+                this.usersService.add(rawValues)
+                    .subscribe(() => {
+                        this.notificationService.showSuccess(MessageConstants.CREATED_OK_MSG);
+                        this.saved.emit(this.entityForm.value);
 
-                    setTimeout(() => {
-                        this.btnDisabled = false;
-                        this.blockedPanel = false;
-                    }, 1000);
-                }, error => {
-                    this.notificationService.showError(error);
+                        setTimeout(() => {
+                            this.btnDisabled = false;
+                            this.blockedPanel = false;
+                        }, 1000);
+                    }, error => {
+                        this.notificationService.showError(error);
 
-                    setTimeout(() => {
-                        this.btnDisabled = false;
-                        this.blockedPanel = false;
-                    }, 1000);
-                });
-
+                        setTimeout(() => {
+                            this.btnDisabled = false;
+                            this.blockedPanel = false;
+                        }, 1000);
+                    })
+            );
         }
+    }
+
+    ngOnDestroy(): void {
+        this.subscription.unsubscribe();
     }
 }

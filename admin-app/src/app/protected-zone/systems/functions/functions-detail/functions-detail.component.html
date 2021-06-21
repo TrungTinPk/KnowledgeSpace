@@ -1,0 +1,79 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">{{dialogTitle}}</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<form class="form-horizontal form-label-left" novalidate [formGroup]="entityForm" (ngSubmit)="saveChange()">
+    <div class="modal-body div-scroll">
+        <p-card #pnl header="Thông tin" styleClass="m-b-10">
+            <div class="p-fluid p-formgrid p-grid">
+                <div class="p-field p-col-12 p-md-12">
+                    <label for="id">Mã duy nhất:</label>
+                    <input id="id" type="text" pInputText formControlName="id">
+                    <app-validation-message [entityForm]="entityForm" fieldName="id"
+                                            [validationMessages]="validation_messages"></app-validation-message>
+                </div>
+                <div class="p-field p-col-12 p-md-12">
+                    <label for="id">Chọn cấp cha:</label>
+                    <p-dropdown [options]="rootFunctions"
+                                emptyFilterMessage="Không có dữ liệu"
+                                [style]="{'width':'100%'}"
+                                formControlName="parentId"
+                                placeholder="Chọn cấp cha"
+                                filter="true" [showClear]="true">
+                    </p-dropdown>
+                    <app-validation-message
+                        [entityForm]="entityForm" fieldName="parentId"
+                        [validationMessages]="validation_messages">
+                    </app-validation-message>
+                </div>
+                <div class="p-field p-col-12 p-md-12">
+                    <label for="name">Tên:</label>
+                    <input id="name" type="text" pInputText [pKeyFilter]="noSpecial" formControlName="name">
+                    <app-validation-message
+                        [entityForm]="entityForm"
+                        fieldName="name"
+                        [validationMessages]="validation_messages">
+                    </app-validation-message>
+                </div>
+                <div class="p-field p-col-12 p-md-12">
+                    <label for="url">Url:</label>
+                    <input id="url" type="text" pInputText [pKeyFilter]="noSpecial" formControlName="url">
+                    <app-validation-message
+                        [entityForm]="entityForm"
+                        fieldName="url"
+                        [validationMessages]="validation_messages">
+                    </app-validation-message>
+                </div>
+                <div class="p-field p-col-6 p-md-6">
+                    <label for="icon">Icon Class:</label>
+                    <input id="icon" type="text" pInputText [pKeyFilter]="noSpecial" formControlName="icon">
+                    <app-validation-message
+                        [entityForm]="entityForm"
+                        fieldName="icon"
+                        [validationMessages]="validation_messages">
+                    </app-validation-message>
+                </div>
+                <div class="p-field p-col-6 p-md-6">
+                    <label for="sortOrder">Thứ tự:</label>
+                    <input id="sortOrder" type="number" pInputText pKeyFilter="int" formControlName="sortOrder">
+                    <app-validation-message
+                        [entityForm]="entityForm"
+                        fieldName="sortOrder"
+                        [validationMessages]="validation_messages">
+                    </app-validation-message>
+                </div>
+            </div>
+            <p-blockUI [target]="pnl" [blocked]="blockedPanel">
+                <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
+                                   strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
+            </p-blockUI>
+        </p-card>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" [disabled]="!entityForm.valid || btnDisabled">Lưu lại</button>
+        &nbsp;
+        <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">Đóng</button>
+    </div>
+</form>

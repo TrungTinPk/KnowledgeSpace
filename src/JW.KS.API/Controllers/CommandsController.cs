@@ -9,7 +9,8 @@ namespace JW.KS.API.Controllers
 {
     public class CommandsController : BaseController
     {
-        private ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
+
         public CommandsController(ApplicationDbContext context)
         {
             _context = context;
@@ -18,14 +19,16 @@ namespace JW.KS.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCommands()
         {
+            var user = User.Identity.Name;
             var commands = _context.Commands;
-            var commandVms = await commands.Select(c => new CommandVm()
-            {
-                Id = c.Id,
-                Name = c.Name
-            }).ToListAsync();
-            return Ok(commandVms);
 
+            var commandVms = await commands.Select(u => new CommandVm()
+            {
+                Id = u.Id,
+                Name = u.Name,
+            }).ToListAsync();
+
+            return Ok(commandVms);
         }
     }
 }

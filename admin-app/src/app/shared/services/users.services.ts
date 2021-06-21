@@ -2,10 +2,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BaseService } from './base.service';
 import { Injectable } from '@angular/core';
 import { catchError, map } from 'rxjs/operators';
-import { User } from '../models/user.model';
 import { environment } from '@environments/environment';
 import { UtilitiesService } from '@app/shared/services/utilities.service';
-import { Pagination } from '@app/shared/models';
+import {Pagination, User} from '@app/shared/models';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService extends BaseService {

@@ -24,6 +24,9 @@ import { RolesAssignComponent } from './users/roles-assign/roles-assign.componen
 import { CheckboxModule } from 'primeng/checkbox';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { CalendarModule } from 'primeng/calendar';
+import { FunctionsDetailComponent } from './functions/functions-detail/functions-detail.component';
+import { CommandsAssignComponent } from './functions/commands-assign/commands-assign.component';
+import {TreeTableModule} from "primeng/treetable";
 
 
 @NgModule({
@@ -34,7 +37,9 @@ import { CalendarModule } from 'primeng/calendar';
     PermissionsComponent,
     RolesDetailComponent,
     UsersDetailComponent,
-    RolesAssignComponent
+    RolesAssignComponent,
+    FunctionsDetailComponent,
+    CommandsAssignComponent
   ],
     imports: [
         CommonModule,
@@ -54,7 +59,8 @@ import { CalendarModule } from 'primeng/calendar';
         ToolbarModule,
         CheckboxModule,
         KeyFilterModule,
-        CalendarModule
+        CalendarModule,
+        TreeTableModule
     ],
   providers: [
       NotificationService,
