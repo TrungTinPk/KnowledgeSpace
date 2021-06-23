@@ -4,6 +4,7 @@ import { KnowledgeBasesComponent } from './knowledge-bases/knowledge-bases.compo
 import { CategoriesComponent } from './categories/categories.component';
 import { CommentsComponent } from './comments/comments.component';
 import { ReportsComponent } from './reports/reports.component';
+import {AuthGuard} from "@app/shared";
 
 const routes: Routes = [
     {
@@ -12,19 +13,35 @@ const routes: Routes = [
     },
     {
         path: 'categories',
-        component: CategoriesComponent
+        data: {
+            functionCode: 'CONTENT_CATEGORY'
+        },
+        component: CategoriesComponent,
+        canActivate: [AuthGuard]
     },
     {
         path: 'comments',
-        component: CommentsComponent
+        data: {
+            functionCode: 'CONTENT_COMMENT'
+        },
+        component: CommentsComponent,
+        canActivate: [AuthGuard]
     },
     {
         path: 'knowledge-bases',
-        component: KnowledgeBasesComponent
+        data: {
+            functionCode: 'CONTENT_KNOWLEDGEBASE'
+        },
+        component: KnowledgeBasesComponent,
+        canActivate: [AuthGuard]
     },
     {
         path: 'reports',
-        component: ReportsComponent
+        data: {
+            functionCode: 'CONTENT_REPORT'
+        },
+        component: ReportsComponent,
+        canActivate: [AuthGuard]
     }
 ];
 

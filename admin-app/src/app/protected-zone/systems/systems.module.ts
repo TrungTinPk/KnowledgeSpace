@@ -27,6 +27,7 @@ import { CalendarModule } from 'primeng/calendar';
 import { FunctionsDetailComponent } from './functions/functions-detail/functions-detail.component';
 import { CommandsAssignComponent } from './functions/commands-assign/commands-assign.component';
 import {TreeTableModule} from "primeng/treetable";
+import {SharedDirectivesModule} from "@app/shared/directives/shared-directives.module";
 
 
 @NgModule({
@@ -60,7 +61,8 @@ import {TreeTableModule} from "primeng/treetable";
         CheckboxModule,
         KeyFilterModule,
         CalendarModule,
-        TreeTableModule
+        TreeTableModule,
+        SharedDirectivesModule
     ],
   providers: [
       NotificationService,

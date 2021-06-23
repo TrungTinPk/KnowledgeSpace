@@ -6,6 +6,9 @@ const routes: Routes = [
     {
         path: '',
         loadChildren: () => import('./protected-zone/layout.module').then((m) => m.ProtectedZoneModule),
+        data: {
+            functionCode: 'DASHBOARD'
+        },
         canActivate: [AuthGuard]
     },
     {

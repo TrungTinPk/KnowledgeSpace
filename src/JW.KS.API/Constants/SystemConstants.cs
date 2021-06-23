@@ -9,7 +9,7 @@ namespace JW.KS.API.Constants
     {
         public class Claims
         {
-            public const string Permissions = "Permissions";
+            public const string Permissions = "permissions";
         }
 
         public class Roles

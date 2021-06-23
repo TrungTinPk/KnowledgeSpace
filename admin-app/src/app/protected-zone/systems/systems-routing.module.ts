@@ -4,6 +4,7 @@ import { UsersComponent } from './users/users.component';
 import { FunctionsComponent } from './functions/functions.component';
 import { PermissionsComponent } from './permissions/permissions.component';
 import { RolesComponent } from './roles/roles.component';
+import {AuthGuard} from "@app/shared";
 
 const routes: Routes = [
     {
@@ -12,19 +13,35 @@ const routes: Routes = [
     },
     {
         path: 'users',
-        component: UsersComponent
+        data: {
+            functionCode: 'SYSTEM_USER'
+        },
+        component: UsersComponent,
+        canActivate: [AuthGuard]
     },
     {
         path: 'functions',
-        component: FunctionsComponent
+        data: {
+            functionCode: 'SYSTEM_FUNCTION'
+        },
+        component: FunctionsComponent,
+        canActivate: [AuthGuard]
     },
     {
         path: 'permissions',
-        component: PermissionsComponent
+        data: {
+            functionCode: 'SYSTEM_PERMISSION'
+        },
+        component: PermissionsComponent,
+        canActivate: [AuthGuard]
     },
     {
         path: 'roles',
-        component: RolesComponent
+        data: {
+            functionCode: 'SYSTEM_ROLE'
+        },
+        component: RolesComponent,
+        canActivate: [AuthGuard]
     }
 ];
 
